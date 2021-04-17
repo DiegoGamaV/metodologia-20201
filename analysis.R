@@ -1,12 +1,17 @@
-### Passos para análise
+## Passos para análise
 
 ## Calcular frequências relativas para plotar histogramas
-## Calcular frequências relativas para plotar gráficos de barras entre pares de variáveis
-## Calcular correlação de Kendall entre pares de variáveis
+
+## Instale os pacotes caso não tenha
+# package.install(ggplo2)
+# package.install(readxl)
+# package.install(stringr)
+# package.install(corrplot)
 
 library(ggplot2)
 library(readxl)
 library(stringr)
+library(corrplot)
 
                         # Modificar caminho absoluto para o seu
 responses <- read_excel("Documentos/ufcg/Metodologia/metodologia-20201/data/Características Acadêmicas e Profissionais que Influenciam a Entrada em um Projeto no Curso de Ciência da Computação na UFCG (respostas).xlsx", 
@@ -20,7 +25,7 @@ unbound_activities_counter <- rep(0, times=length(unbound_activities_str))
 counter=0
 for (activities in unbound_activities_str) {   
   counter=counter+1
-  activities <- gsub("\\s*\\([^\\)]+\\)", "", activities) #remover tudo entre parênteses
+  activities <- gsub("\\s*\\([^\\)]+\\)", "", activities) # REGEX para remover tudo entre parênteses
   unbound_activities[counter]<-str_split(activities, ", (?=[[:upper:]])")
 }
 
@@ -74,7 +79,7 @@ bound_activities_counter <- rep(0, times=length(bound_activities_str))
 counter=0
 for (activities in bound_activities_str) {   
   counter=counter+1
-  activities <- gsub("\\s*\\([^\\)]+\\)", "", activities) #remover tudo entre parênteses
+  activities <- gsub("\\s*\\([^\\)]+\\)", "", activities) # REGEX para remover tudo entre parênteses
   bound_activities[counter]<-str_split(activities, ", (?=[[:upper:]])")
 }
 
@@ -189,4 +194,31 @@ tidy_dataframe <- data.frame(entered_project,
                             bound_guardians,
                             bound_monitor,
                             bound_representation)
+
+View(tidy_dataframe)
 # ----------------- Processando Tidy Data -----------------
+
+# Matriz de Correlação
+corr_matrix <- cor(x = tidy_dataframe, method = "kendall")[1:5,1:5]
+colnames(corr_matrix) <- c("last_project", "had_referal", "other_projects", "num_unbound", "num_bound")
+rownames(corr_matrix) <- c("last_project", "had_referal", "other_projects", "num_unbound", "num_bound")
+View(corr_matrix)
+corrplot(corr_matrix, type="upper", order="hclust", tl.col = "darkblue", tl.srt = 45)
+
+# Gráfico de Barras: dos que entraram no último projeto, frequência relativa
+# dos que já participaram de outros projetos
+ggplot(data = tidy_dataframe) +
+  geom_bar(mapping = aes(x = entered_project, fill = other_projects))
+
+# Gráfico de Barras: dos que entraram no último projeto, frequência relativa
+# dos que foram indicados para ele
+ggplot(data = tidy_dataframe) +
+  geom_bar(mapping = aes(x = entered_project, fill = had_referral))
+
+# Gráfico de Contagem de Pontos: contagem das observações baseado no número de
+# atividades vinculadas versus atividades não vinculadas. Observações coloridas
+# de acordo com terem entrado ou não no último projeto.
+ggplot(data = tidy_dataframe) +
+  geom_count(mapping = aes(x = unbound_activities_counter, 
+                           y = bound_activities_counter, 
+                           color = entered_project))
