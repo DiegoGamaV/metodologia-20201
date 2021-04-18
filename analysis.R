@@ -66,9 +66,12 @@ for (activities in unbound_activities) {
     if (activity == "Competições independentes") {
       unbound_competitions[counter] = TRUE;
     }
-    number_activities = length(activities)
-    unbound_activities_counter[counter] = number_activities
   }
+  number_activities = 0
+  if (activities[1] != "Nenhuma") {
+    number_activities = length(activities)
+  }
+  unbound_activities_counter[counter] = number_activities
 }
 
 # ----- ATIVIDADES VINCULADAS ---------------------
@@ -132,9 +135,12 @@ for (activities in bound_activities) {
     if (activity == "Participação nos Guardians") {
       bound_guardians[counter] = TRUE
     }
-    number_activities = length(activities)
-    bound_activities_counter[counter] = number_activities
   }
+  number_activities = 0
+  if (activities[1] != "Nenhuma") {
+    number_activities = length(activities)
+  }
+  bound_activities_counter[counter] = number_activities
 }
 # ----- VARIÁVEIS LÓGICAS ---------------------
 entered_project_str <- responses$`Você passou no seu último processo seletivo para entrada em projetos?`
@@ -200,8 +206,8 @@ View(tidy_dataframe)
 
 # Matriz de Correlação
 corr_matrix <- cor(x = tidy_dataframe, method = "kendall")[1:5,1:5]
-colnames(corr_matrix) <- c("last_project", "had_referal", "other_projects", "num_unbound", "num_bound")
-rownames(corr_matrix) <- c("last_project", "had_referal", "other_projects", "num_unbound", "num_bound")
+colnames(corr_matrix) <- c("last_project", "had_referral", "other_projects", "num_unbound", "num_bound")
+rownames(corr_matrix) <- c("last_project", "had_referral", "other_projects", "num_unbound", "num_bound")
 View(corr_matrix)
 corrplot(corr_matrix, type="upper", order="hclust", tl.col = "darkblue", tl.srt = 45)
 
